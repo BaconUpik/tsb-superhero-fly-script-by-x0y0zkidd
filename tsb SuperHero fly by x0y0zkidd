@@ -88,7 +88,7 @@ btn2.MouseButton1Click:Connect(function()
 	local anim = Instance.new("Animation")
 	anim.AnimationId = "rbxassetid://16597322398"
 	local animtrack = hum.Animator:LoadAnimation(anim)
-	animtrack2.Priority = Enum.AnimationPriority.Action4
+	animtrack.Priority = Enum.AnimationPriority.Action4
 	animtrack:Play()
 	animtrack:AdjustSpeed(4)
 
