@@ -1,0 +1,140 @@
+local plr = game:GetService("Players")
+local me  = plr.LocalPlayer
+local hum = me.Character:WaitForChild("Humanoid")
+local hrp = me.Character:WaitForChild("HumanoidRootPart")
+
+local work = game:GetService("Workspace")
+local run = game:GetService("RunService")
+
+local function update()
+	hum = me.Character:WaitForChild("Humanoid")
+	hrp = me.Character:WaitForChild("HumanoidRootPart")
+end
+
+me.CharacterAdded:Connect(update)
+
+if me.Character then
+	update()
+end
+
+local move = true
+local moveCon
+local toMove
+
+local timer = 1
+
+local screen  = Instance.new("ScreenGui")
+screen.Parent = me.PlayerGui
+screen.Name   = "Movement"
+screen.ResetOnSpawn = false
+
+local frame    = Instance.new("Frame")
+frame.Parent   = screen
+frame.Size     = UDim2.new(0,250,0,250)
+frame.Position = UDim2.new(0,15,0,380)
+
+frame.Active     = true
+frame.Selectable = true
+frame.Draggable  = true
+
+local btn    = Instance.new("TextButton")
+btn.Parent   = frame
+btn.Size     = UDim2.new(0,25,0,25)
+btn.Position = UDim2.new(0,225,0,0)
+btn.Text     = "X"
+btn.TextSize = 12
+
+local text             = Instance.new("TextBox")
+text.Parent            = frame
+text.Size              = UDim2.new(0,80,0,35)
+text.Position          = UDim2.new(0,90,0,100)
+text.Text              = ""
+text.PlaceholderText   = "SuperFly"
+text.PlaceholderColor3 = Color3.fromRGB(70,70,70)
+text.TextSize          = 12
+text.ClearTextOnFocus = false
+text.MultiLine = true
+
+local btn2    = Instance.new("TextButton")
+btn2.Parent   = frame
+btn2.Size     = UDim2.new(0,80,0,35)
+btn2.Position = UDim2.new(0,30,0,140)
+btn2.Text     = "Start"
+btn2.TextSize = 12
+
+local btn3    = Instance.new("TextButton")
+btn3.Parent   = frame
+btn3.Size     = UDim2.new(0,80,0,35)
+btn3.Position = UDim2.new(0,150,0,140)
+btn3.Text     = "Stop"
+btn3.TextSize = 12
+
+btn.MouseButton1Click:Connect(function()
+	screen:Destroy()
+end)
+
+local mouse = me:GetMouse()
+
+btn2.MouseButton1Click:Connect(function()
+	local part = Instance.new("Part")
+	part.Parent = work
+	part.Transparency = 0.999
+	
+	local bmw = Instance.new("BodyVelocity")
+	bmw.Velocity = Vector3.new(0,0,0)
+	bmw.MaxForce = Vector3.new(100000,100000,100000)
+	bmw.Parent = hrp
+
+	local anim = Instance.new("Animation")
+	anim.AnimationId = "rbxassetid://16597322398"
+	local animtrack = hum.Animator:LoadAnimation(anim)
+	animtrack:Play()
+	animtrack:AdjustSpeed(4)
+
+	task.delay(0.2,function()
+		animtrack:AdjustSpeed(0)
+	end)
+
+	btn3.MouseButton1Click:Connect(function()
+		if moveCon then
+			moveCon:Disconnect()
+			moveCon = nil
+		end
+		animtrack:Stop()
+
+		local anim2 = Instance.new("Animation")
+		anim2.AnimationId = "rbxassetid://17354976067"
+		local animtrack2 = hum.Animator:LoadAnimation(anim2)
+		animtrack2:Play()
+		animtrack2:AdjustSpeed(7)
+
+		task.delay(0.2,function()
+			animtrack2:AdjustSpeed(0)
+		end)
+		
+		task.delay(2,function()
+			animtrack2:Stop()
+		end)
+
+		hum.PlatformStand = false
+			
+		if bmw then
+			bmw:Destroy()
+		end
+	end)
+
+	moveCon = run.RenderStepped:Connect(function(dt)
+		local toLookMouse = mouse.Hit.Position
+		local current = hrp.Position
+
+		local toLook = (toLookMouse - current).unit
+
+		hrp.CFrame = CFrame.new(current, current + toLook)
+		
+		if text.Text == "" then
+			bmw.Velocity = toLook * 85
+		else
+			bmw.Velocity = toLook * text.Text
+		end
+	end)
+end)
